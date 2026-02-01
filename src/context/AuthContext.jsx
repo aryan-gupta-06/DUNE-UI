@@ -1,34 +1,19 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase/firebase";
+import { createContext, useContext, useState } from "react";
 
-const AuthContext = createContext(null);
+// Global auth context
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Listen to Firebase auth changes
-  useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName || "Firebase User",
-          provider: "firebase",
-        });
-      }
-      setLoading(false);
-    });
-
-    return () => unsub();
-  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, setUser }}>
+      {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+// Hook to use auth context
+export function useAuth() {
+  return useContext(AuthContext);
+}
